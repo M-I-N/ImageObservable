@@ -8,39 +8,61 @@
 
 import SwiftUI
 
-struct ImagePicker: View {
+struct ContentView: View {
 
-    @State private var isShowingImagePicker = false
-    @State private var isShowingDetailView = false
-    @ObservedObject var viewModel = UserViewModel()
+    @ObservedObject var userViewModel = UserViewModel()
+
+    @State private var isShowingDetail = false
 
     var body: some View {
         NavigationView {
             VStack {
-                Button(action: {
-                    self.isShowingImagePicker.toggle()
-                }) {
-                    Image(uiImage: viewModel.image)
+                Image(uiImage: userViewModel.image)
+                    .resizable()
+                    .scaledToFill()
+                    .clipShape(Circle())
+                    .overlay(Circle() .stroke(Color.black, lineWidth: 1))
+                    .shadow(color: .black, radius: 3, x: 0, y: 3)
+                    .frame(width: 100.0, height: 100.0)
+                NavigationLink(destination: EditProfile(userViewModel: userViewModel), isActive: $isShowingDetail) {
+                    Text("Change")
+                }
+            }
+            .navigationBarTitle(Text("Home"))
+        }
+    }
+}
+
+struct EditProfile: View {
+
+    @ObservedObject var userViewModel: UserViewModel
+
+    @State private var isShowingImagePicker = false
+
+    var body: some View {
+        VStack {
+            Button(action: {
+                self.isShowingImagePicker.toggle()
+            }) {
+                ZStack {
+                    Image(uiImage: userViewModel.image)
                         .renderingMode(.original)
                         .resizable()
                         .scaledToFill()
                         .clipShape(Circle())
                         .overlay(Circle() .stroke(Color.black, lineWidth: 1))
                         .shadow(color: .black, radius: 3, x: 0, y: 3)
-                        .frame(width: 60.0, height: 70.0)
-
-                        .sheet(isPresented: $isShowingImagePicker, content: {
-                            ImagePickerView(isPresented: self.$isShowingImagePicker, selectedImage: self.$viewModel.image)
-                        })
+                        .frame(width: 100.0, height: 100.0)
+                    Image(systemName: "square.and.pencil")
+                        .imageScale(.large)
+                        .foregroundColor(.gray)
                 }
-
-                NavigationLink(destination: DetailView(userViewModel: viewModel), isActive: $isShowingDetailView) {
-                    Text("Detail")
-                }
-
             }
-            .navigationBarTitle(Text("Home"))
         }
+        .sheet(isPresented: $isShowingImagePicker, content: {
+            ImagePickerView(isPresented: self.$isShowingImagePicker, selectedImage: self.$userViewModel.image)
+        })
+        .navigationBarTitle(Text("Edit Profile"), displayMode: .inline)
     }
 
     struct ImagePickerView: UIViewControllerRepresentable {
@@ -84,23 +106,8 @@ struct ImagePicker: View {
     }
 }
 
-struct DetailView: View {
-    var userViewModel: UserViewModel
-    var body: some View {
-        Image(uiImage: userViewModel.image)
-        .renderingMode(.original)
-        .resizable()
-        .scaledToFill()
-        .clipShape(Circle())
-        .overlay(Circle() .stroke(Color.black, lineWidth: 1))
-        .shadow(color: .black, radius: 3, x: 0, y: 3)
-        .frame(width: 60.0, height: 70.0)
-            .navigationBarTitle(Text("Detail"), displayMode: .inline)
-    }
-}
-
-struct ImagePicker_Previews: PreviewProvider {
+struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ImagePicker()
+        ContentView()
     }
 }
