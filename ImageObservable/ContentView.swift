@@ -10,28 +10,36 @@ import SwiftUI
 
 struct ImagePicker: View {
 
-    @State var isShowingImagePicker = false
+    @State private var isShowingImagePicker = false
+    @State private var isShowingDetailView = false
     @ObservedObject var viewModel = UserViewModel()
 
     var body: some View {
-        VStack {
-            Button(action: {
-                self.isShowingImagePicker.toggle()
-            }) {
-                Image(uiImage: viewModel.image)
-                    .renderingMode(.original)
-                    .resizable()
-                    .scaledToFill()
-                    .clipShape(Circle())
-                    .overlay(Circle() .stroke(Color.black, lineWidth: 1))
-                    .shadow(color: .black, radius: 3, x: 0, y: 3)
-                    .frame(width: 60.0, height: 70.0)
-                    .padding(.trailing, 20)
+        NavigationView {
+            VStack {
+                Button(action: {
+                    self.isShowingImagePicker.toggle()
+                }) {
+                    Image(uiImage: viewModel.image)
+                        .renderingMode(.original)
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(Circle())
+                        .overlay(Circle() .stroke(Color.black, lineWidth: 1))
+                        .shadow(color: .black, radius: 3, x: 0, y: 3)
+                        .frame(width: 60.0, height: 70.0)
 
-                    .sheet(isPresented: $isShowingImagePicker, content: {
-                        ImagePickerView(isPresented: self.$isShowingImagePicker, selectedImage: self.$viewModel.image)
-                    })
+                        .sheet(isPresented: $isShowingImagePicker, content: {
+                            ImagePickerView(isPresented: self.$isShowingImagePicker, selectedImage: self.$viewModel.image)
+                        })
+                }
+
+                NavigationLink(destination: DetailView(userViewModel: viewModel), isActive: $isShowingDetailView) {
+                    Text("Detail")
+                }
+
             }
+            .navigationBarTitle(Text("Home"))
         }
     }
 
@@ -73,6 +81,21 @@ struct ImagePicker: View {
         func updateUIViewController(_ uiViewController: ImagePickerView.UIViewControllerType, context: UIViewControllerRepresentableContext<ImagePickerView>) {
 
         }
+    }
+}
+
+struct DetailView: View {
+    var userViewModel: UserViewModel
+    var body: some View {
+        Image(uiImage: userViewModel.image)
+        .renderingMode(.original)
+        .resizable()
+        .scaledToFill()
+        .clipShape(Circle())
+        .overlay(Circle() .stroke(Color.black, lineWidth: 1))
+        .shadow(color: .black, radius: 3, x: 0, y: 3)
+        .frame(width: 60.0, height: 70.0)
+            .navigationBarTitle(Text("Detail"), displayMode: .inline)
     }
 }
 
